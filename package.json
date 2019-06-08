@@ -1,0 +1,15 @@
+{
+  "name": "fix-textbook-audit-csv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joshua McKinney",
+  "license": "MIT",
+  "dependencies": {
+    "d3-dsv": "^1.1.1",
+    "strip-bom": "^4.0.0"
+  }
+}
