@@ -5,6 +5,7 @@ var fileData = fs.readFileSync(process.argv[2], 'utf8');
 fileData = stripBom(fileData);
 
 function removeFirstLine(fileData) {
+    // add an if
     var indexOfEOL = fileData.indexOf('\n');
     return fileData.slice(indexOfEOL + 1);
 }
@@ -39,26 +40,28 @@ function fixHeaders(fileData) {
     return fileData;
 }
 
-fileData = removeFirstLine(fileData);
-fileData = fixHeaders(fileData);
 var deleteFirstLineCheck = /^Course Verification Report/
 if (deleteFirstLineCheck.test(fileData)) {
-    fileData = fileData.replace(/^Course Verification Report.*?(\r?\n)+/m, '');
+    fileData = removeFirstLine(fileData);
 }
-console.log(fileData.slice(0, 500));
+fileData = fixHeaders(fileData);
+// console.log(fileData.slice(0, 500));
 books = dsv.csvParse(fileData);
 
-
+// console.log(books[0])
 books = books
+    // triming all the values
     .map(book => {
         for (const key in book) {
             book[key] = book[key].trim();
         }
         return book;
     })
+    // remove the stars that separate the classes
     .filter(book => {
         return !(book.DEPT.includes("***") || book.CRS.includes("***"));
     })
+    // rolls the data to one line
     .reduce((booksOut, book, i) => {
         if (book.DEPT !== "") {
             booksOut.push(book);
@@ -66,27 +69,26 @@ books = books
         else {
             for (const key in book) {
                 if (book[key] !== "") {
+                    var space = "";
                     if (key === "Course Comments") {
-                        booksOut[booksOut.length - 1][key] += " " + book[key];
-                    } else {
-                        booksOut[booksOut.length - 1][key] += book[key];
-                    }
+                        space = " ";
+                    } 
+                    booksOut[booksOut.length - 1][key] += space + book[key];
                 }
             }
         }
-
         return booksOut;
     }, [])
     .map(book => {
         if (book["Course Comments"].includes('***')) {
 
             notes = book["Course Comments"].split('***');
-            // take the first one off
-            notes.shift();
+            // take out any empyt strings
+            notes = notes.filter(note => note !== "");
             // console.log(notes)
 
             notes.forEach((note, i) => {
-                book["Course Comments" + (i + 1)] = "***" + note;
+                book["Course Comments " + (i + 1)] = "***" + note;
             });
         }
         delete book["Course Comments"]
@@ -97,7 +99,7 @@ books = books
         return book;
     });
 
-// console.log(books.slice(0, 30));
+console.log(books.slice(0, 3));
 
 // fs.writeFileSync(`fixed${Date.now()}.csv`,dsv.csvFormat(books),'utf8');
 fs.writeFileSync(`fixed.csv`, dsv.csvFormat(books), 'utf8');
