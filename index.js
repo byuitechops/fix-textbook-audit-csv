@@ -27,7 +27,7 @@ function fixHeaders(fileData) {
             return rowOut.map((cell, i) => cell + row[i])
         }) // no starting acc
         // trim and remove extra spaces all the values
-        .map(header => header.trim().replace(/ +/g,' '));
+        .map(header => header.trim().replace(/ +/g, ' '));
 
     var headerText = parsedHeaders.join(',');
     var allText = lines.slice(secondLineNoSpaceIndex);
@@ -72,7 +72,7 @@ books = books
                     var space = "";
                     if (key === "Course Comments") {
                         space = " ";
-                    } 
+                    }
                     booksOut[booksOut.length - 1][key] += space + book[key];
                 }
             }
